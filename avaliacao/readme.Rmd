@@ -1,0 +1,11 @@
+---
+title: "Avaliacao"
+author: "Yago da Silva Menezes"
+date: "Introdução a Estatistica 2020.1"
+output: github_document
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse) # carrega o pacote tidyverse
+```
+**Questão 01.**
