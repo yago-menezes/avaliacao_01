@@ -1,5 +1,5 @@
 ---
-title: "Avaliação 01"
+title: "Soluções da Avaliação 01"
 author: "Yago da Silva Menezes </br>"
 date: "Introdução a Estatistica 2020.1"
 output: github_document
