@@ -1,6 +1,6 @@
 ---
-title: "Avaliacao"
-author: "Yago da Silva Menezes"
+title: "Avaliação 01"
+author: "Yago da Silva Menezes </br>"
 date: "Introdução a Estatistica 2020.1"
 output: github_document
 ---
@@ -9,3 +9,187 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse) # carrega o pacote tidyverse
 ```
 **Questão 01.**
+**a)** Nesse item utilizei o código abaixo para ler os dados, obter a frequência das respectivas ordens e ordená-la de maneira crescente:
+
+```{r, message=FALSE}
+dados_peixes <- read_csv("dados/brutos/peixes_rio_madeira.csv")
+dados_peixes %>% 
+count(ordem) %>%
+arrange(n)  
+```
+
+**b)** Diante do item anterior é possível verificar que a ordem do peixe mais identificada é a do _Characiformes_ com _64356_ observações.
+
+**c)** É possível verificar por **a)** que na variável ordem _17_ peixes não foram identificados.
+
+**Questão 02.**
+Nessa questão utilizei o código abaixo para selecionar as variáveis _bacia_, _ordem_ e _peso_g_ , filtrar a observação "Rio Guaporé" da variável _bacia_ e depois agrupar a variável ordem, por fim calcular a média desconsiderando os que não possuem valores do peso. Além disso, calculou-se o desvio padrão da variável peso e a fórmula **cv** contida na questão. Assim, gerou a tibble abaixo com todas essas informações.
+```{r, message=FALSE}
+dados_peixes %>%
+select(bacia, ordem, peso_g) %>%
+filter(bacia == "Rio Guaporé") %>%
+group_by(ordem) %>%
+summarise(med_p = mean(peso_g, na.rm = T), 
+            des = sd(peso_g, na.rm = T),
+             cv = (des/med_p)*100 ) %>%
+arrange(med_p)
+```
+
+**a)** Como podemos obervar as média possuem valores distintos, então a medida de variabilidade mais adequada é do de **coeficiente de variação**.
+
+**b)** Diante do código acima, com a referida tibble, é possível notar que a ordem **Clupeiformes** é que possui a distribuição de peso mais homogênea, pois seu coeficiente de variação é o menor.
+
+**Questão 03.**
+Com o código abaixo foi possível identifcar as observações presentes na variável _sexo_.
+```{r, message=FALSE}
+dados_peixes %>%
+  count(sexo)
+```
+
+Em seguida, utilizei o código abaixo para recodificar a variável _sexo_ para _sexo_recod_ de forma que modifique a observação apenas para _Macho_ e _Fêmea_. Além disso, esse código calcula a porcentagem referente a cada sexo e organiza em uma tibble filtrando apenas os dois sexos. 
+```{r, message=FALSE}
+dados_peixes %>%
+  mutate(sexo_recod = recode(
+    sexo, "Fêmea" = "Fêmea",
+          "fêmea" = "Fêmea",
+          "Macho" = "Macho"  ))%>%
+  count(sexo_recod) %>%
+  summarise(sexo_recod= sexo_recod, 
+            n = n,
+            porc = (n/49800)*100
+  )%>%
+  filter(sexo_recod %in% c("Fêmea", "Macho"))
+```
+
+
+**a)** Portanto, diante da tibble acima o aumento em porcentagem que devemos dar à quantidade de machos para que possua a mesma quantidade referente às fêmeas é em porcentagem:
+```{r, message=FALSE}
+x <- 56.9-43.1
+  x
+```
+
+
+**b)** Com o código abaixo foi possível organizar de maneira decrescente os pesos associados aos _sexo_recod_.
+
+```{r, message=FALSE}
+dados_peixes %>%
+  group_by(peso_g)%>%
+  mutate(sexo_recod = recode(
+    sexo, "Fêmea" = "Fêmea",
+          "fêmea" = "Fêmea",
+          "Macho" = "Macho"  ))%>%
+  count(sexo_recod) %>%
+  summarise(sexo_recod= sexo_recod
+  )%>%
+  filter(sexo_recod %in% c("Fêmea", "Macho"))%>%
+  arrange(desc(peso_g)) %>%
+  top_n(5)
+```
+Portanto, o peixe do sexo **Fêmea** possui o maior peso de 14600g.
+
+**Questão 04.**
+Com o código abaixo é possível filtrar e organizar o hábito alimentar _Carnívoro_ e o sexo _Macho_ e contar a quantidade que possui essas observações. Logo, a quantidade é **8552**
+```{r, message=FALSE}
+dados_peixes %>%
+group_by(habito_alimentar, sexo)%>%
+  count(habito_alimentar)%>%
+summarise(habito_alimentar = habito_alimentar,
+          sexo = sexo,
+          quant = n)%>%
+ filter(habito_alimentar == "Carnívoro" & sexo == "Macho")
+
+```
+
+
+**Questão 05.** 
+Com o código a seguir, organizei os dados de ordem decrescente e exibir apenas o primeiro dado. Logo, o maior rendimento líquido registrado foi de **R$ 7.267.672**.
+```{r, message=FALSE}
+dados_contracheque <- read_csv("dados/brutos/contracheque.csv")
+dados_contracheque %>%
+  select(rendimento_liquido)%>%
+  arrange(desc(rendimento_liquido)) %>% 
+  top_n(1)
+```
+
+**Questão 06.**
+Com o código abaixo é possível filtrar os rendimentos liquidos com valores acima de R$ 39.293,32 e contar quantos magistrados se enquandra nessa condição.
+```{r, message=FALSE}
+dados_contracheque %>%
+  filter(rendimento_liquido > 39293.32)%>%
+  count()
+```
+Portanto, **37334** magistrados possuem rendimento liquido acima de R$ 39.293,32.
+
+**a)** De forma análoga, usando o código abaixo temos a quantidade de magistrados que possuem redimento liquido acima de R$ 100.000,00, isto é, **1136** magistrados.
+```{r, message=FALSE}
+dados_contracheque %>%
+  filter(rendimento_liquido > 100000)%>%
+  count()
+```
+
+**b)** Utilizei o código abaixo para selecionar as variáveis _tribunal_ e _rendimento_liquido_, depois agrupar a variável tribunal, por fim calcular a média desconsiderando os que não possuem valores do rendimento. Além disso, calculou-se o desvio padrão da variável rendimento_liquido e a fórmula **cv** da Questão 02 para analisar a variabilidade. Assim, gerou a tibble abaixo com todas essas informações exibindo os valores do **cv** de forma decrescente.
+```{r, message=FALSE}
+dados_contracheque %>%
+  select(tribunal, rendimento_liquido) %>%
+  group_by(tribunal) %>%
+  summarise(med_t = mean(rendimento_liquido, na.rm = T),
+            des = sd(rendimento_liquido, na.rm = T),
+            cv = (des/med_t)*100 ) %>%
+  arrange(desc(cv))%>%
+  top_n(5)
+```
+Portanto, diante da informação do **cv** contida na tibble podemos concluir que o **Tribunal Regional do Trabalho da 7ª Região (CE)** possui a maior variabilidade, isto é, **cv = 713**.
+
+**Questão 07.**
+**a)** Pelo gráfico podemos observar que o turno **integral** possui a maior mediana das notas, pois os dados estão expressos nos boxplots e sabemos que a mediana é o 2º quartil (o traço horizontal dentro da caixa) do  boxplot. Portanto, como a mediana de **integral** está acima das medianas dos outros turnos então é a maior dentre as outras. 
+
+**b)** Com o código abaixo foi possível filtrar o turno _integral_ e calcular a média e mediana da variável _nota_integral_ampla_ desconsiderando os valores inexistentes.
+
+```{r, message=FALSE}
+dados_cursos <- read_csv("dados/brutos/cursos-prouni.csv")
+dados_cursos %>%
+  filter(turno == "Integral")%>%
+  summarise(media = mean(nota_integral_ampla, na.rm = T),
+            mediana = median(nota_integral_ampla, na.rm = T)
+      )
+```
+Logo, a média é aproximadamente **663** e a mediana **658**.
+
+**c)** Vimos na **Questão 02** que quanto menor a porcentagem do **cv**, mais homogênea é a distribuição de uma determinada variável. Para nosso caso, queremos saber qual dos cinco _turnos_ possui menor homegeneidade na _nota_integral_ampla_, ou seja, qual dos turnos possui o maior valor do **cv**. Responderemos com o código abaixo, no qual sua estrutura já foi detalhada em questões anteriores.
+```{r, message=FALSE}
+dados_cursos %>%
+  select(turno, nota_integral_ampla) %>%
+  group_by(turno) %>%
+  summarise(med_t = mean(nota_integral_ampla, na.rm = T),
+            des = sd(nota_integral_ampla, na.rm = T),
+            cv = (des/med_t)*100 ) %>%
+  arrange(desc(cv))
+```
+Portanto, é possível verificar na tibble que o turno **Curso a Distância** possui menor homogeneidade na _nota_integral_ampla_.
+
+**Questão 08.**
+Utilizei o código abaixo para agrupar a variável _uf_busca_ e organizar a frequência absoluta de forma decrescente.
+```{r, message=FALSE}
+dados_cursos %>%
+group_by(uf_busca)%>%
+  summarise(
+    n=n()
+  )%>%
+arrange(desc(n))
+```
+Assim, pode-se observar na tibble que a **Bahia** ocupa a **5ª posição**.
+
+**Questão 09.**
+Com o código abaixo selecionei a variável _nome_ identificando os cursos distintos e por fim obtendo esse total.
+
+```{r, message=FALSE}
+dados_cursos %>%
+select(nome)%>%
+distinct()%>%
+  count()
+```
+Logo, foram identificados *296* cursos distintos.
+
+**Questão 10.**
+Diante dos gráficos e dos estudos da estatística descritiva, podemos notar que as represenções são simétricas tanto para o curso de _Medicina_ quanto para o de _Direito_, pois é possível observar que não possuem valores extremos, ou seja, dados distantes da maior concentração de amostras. Portanto, se fôssemos calcular _média_ e _mediana_ de cada uma dessas distruibuições com certeza os valores dessas duas medidas de tendência central seriam muito próximos, em cada conjuntos de dados. 
+Além disso, podemos também visualizar que os dois gráficos possuem diferenças visuais, o de _Medicina_ é mais "fechado" e "acentuado" e o de _Direito_ é mais "aberto" e "dispersado". Isso significa que há uma diferença na variabilidade desses dois conjuntos de dados, especificamente no desvio padrão. No de _Medicina_, com certeza há um desvio padrão menor do que o de _Direito_, pois há uma maior homogeneidade na amostra, os dados possui valores mais próximos. Já o de _Direito_ possui uma menor homogeneidade, pois dados possui valores mais dispersados, então a tendência é ter um desvio padrão maior.
